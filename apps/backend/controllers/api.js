@@ -102,6 +102,13 @@ exports.install = function() {
     ROUTE('PUT    /api/v1/driver/status           --> DriverStatus/update', FUNC.auth(['driver']));
 
     // ---------------------------
+    // MY DRIVER (onboarding/profile)
+    // ---------------------------
+    ROUTE('GET    /api/v1/my/driver               --> MyDriver/read', FUNC.auth(['driver']));
+    ROUTE('POST   /api/v1/my/driver/apply         --> MyDriver/apply', FUNC.auth(['driver']));
+    ROUTE('PUT    /api/v1/my/driver               --> MyDriver/update', FUNC.auth(['driver']));
+
+    // ---------------------------
     // PROMOTIONS (public)
     // ---------------------------
     ROUTE('GET    /api/v1/promotions              --> Promotions/list');
@@ -131,6 +138,10 @@ exports.install = function() {
     ROUTE('POST   /api/v1/admin/merchants/{id}/reject  --> Admin/rejectMerchant', FUNC.auth(['admin_operations', 'super_admin']));
     ROUTE('GET    /api/v1/admin/orders              --> Admin/orders', FUNC.auth(['admin_operations', 'super_admin']));
     ROUTE('GET    /api/v1/admin/users               --> Admin/users', FUNC.auth(['admin_operations', 'super_admin']));
+    ROUTE('GET    /api/v1/admin/drivers             --> Admin/drivers', FUNC.auth(['admin_operations', 'super_admin']));
+    ROUTE('GET    /api/v1/admin/drivers/pending     --> Admin/driversPending', FUNC.auth(['admin_operations', 'super_admin']));
+    ROUTE('POST   /api/v1/admin/drivers/{id}/approve --> Admin/approveDriver', FUNC.auth(['admin_operations', 'super_admin']));
+    ROUTE('POST   /api/v1/admin/drivers/{id}/reject  --> Admin/rejectDriver', FUNC.auth(['admin_operations', 'super_admin']));
 
     // ---------------------------
     // HEALTH & INFO

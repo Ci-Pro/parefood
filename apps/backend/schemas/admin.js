@@ -206,4 +206,147 @@ NEWSCHEMA('Admin', function(schema) {
             });
         }
     });
+
+    // List drivers (admin)
+    schema.action('drivers', {
+        name: 'List drivers',
+        query: 'status:String,page:Number,size:Number',
+        action: function($, model) {
+            var page = parseInt(model.page) || 1;
+            var size = parseInt(model.size) || 20;
+            var offset = (page - 1) * size;
+
+            var builder = DB().find('drivers');
+            builder.where('is_removed', false);
+            if (model.status) builder.where('status', model.status);
+            builder.sort('created_at', true);
+            builder.take(size);
+            builder.skip(offset);
+            builder.callback(function(err, rows) {
+                if (err) return $.invalid(500, 'Failed to fetch drivers');
+                $.callback({ drivers: rows, pagination: { page: page, size: size } });
+            });
+        }
+    });
+
+    // List pending drivers
+    schema.action('driversPending', {
+        name: 'List pending drivers',
+        action: function($) {
+            DB().find('drivers')
+                .where('status', 'pending')
+                .where('is_removed', false)
+                .sort('created_at', true)
+                .callback(function(err, rows) {
+                    if (err) return $.invalid(500, 'Failed to fetch drivers');
+                    $.callback({ drivers: rows });
+                });
+        }
+    });
+
+    // Approve driver
+    schema.action('approveDriver', {
+        name: 'Approve driver',
+        params: '*id:UID',
+        action: function($) {
+            var userId = $.user.sub;
+
+            DB().one('drivers')
+                .fields('id,status,profile_id')
+                .where('id', $.params.id)
+                .where('is_removed', false)
+                .callback(function(err, driver) {
+                    if (err) return $.invalid(500, 'Failed to load driver');
+                    if (!driver) return $.invalid(404, 'Driver not found');
+                    if (driver.status !== 'pending') return $.invalid(400, 'Driver is not pending review');
+
+                    var now = new Date();
+                    FUNC.sequence(function(done) {
+                        DB().update('drivers', {
+                            status: 'approved',
+                            approved_at: now,
+                            approved_by: userId,
+                            updated_at: now
+                        }).where('id', driver.id).callback(function(err) {
+                            if (err) return done(err);
+
+                            DB().insert('notifications', {
+                                id: FUNC.generateId(),
+                                recipient_id: driver.profile_id,
+                                type: 'driver_approved',
+                                title: 'Driver Disetujui',
+                                body: 'Selamat! Aplikasi driver Anda telah disetujui. Silakan masuk untuk mulai menerima pesanan.',
+                                is_read: false,
+                                created_at: now
+                            }).callback(function(err) {
+                                if (err) return done(err);
+                                done();
+                            });
+                        });
+                    }, function(err) {
+                        if (err) return $.invalid(500, 'Failed to approve driver');
+
+                        FUNC.audit($, {
+                            entity_type: 'drivers',
+                            entity_id: driver.id,
+                            action: 'approve'
+                        });
+                        $.success();
+                    });
+                });
+        }
+    });
+
+    // Reject driver
+    schema.action('rejectDriver', {
+        name: 'Reject driver',
+        params: '*id:UID',
+        input: 'reason:String',
+        action: function($, model) {
+            var userId = $.user.sub;
+
+            DB().one('drivers')
+                .fields('id,status,profile_id')
+                .where('id', $.params.id)
+                .where('is_removed', false)
+                .callback(function(err, driver) {
+                    if (err) return $.invalid(500, 'Failed to load driver');
+                    if (!driver) return $.invalid(404, 'Driver not found');
+                    if (driver.status !== 'pending') return $.invalid(400, 'Driver is not pending review');
+
+                    var now = new Date();
+                    FUNC.sequence(function(done) {
+                        DB().update('drivers', {
+                            status: 'rejected',
+                            updated_at: now
+                        }).where('id', driver.id).callback(function(err) {
+                            if (err) return done(err);
+
+                            DB().insert('notifications', {
+                                id: FUNC.generateId(),
+                                recipient_id: driver.profile_id,
+                                type: 'driver_rejected',
+                                title: 'Driver Ditolak',
+                                body: 'Mohon maaf, aplikasi driver Anda ditolak: ' + (model.reason || 'Tidak memenuhi syarat'),
+                                is_read: false,
+                                created_at: now
+                            }).callback(function(err) {
+                                if (err) return done(err);
+                                done();
+                            });
+                        });
+                    }, function(err) {
+                        if (err) return $.invalid(500, 'Failed to reject driver');
+
+                        FUNC.audit($, {
+                            entity_type: 'drivers',
+                            entity_id: driver.id,
+                            action: 'reject',
+                            metadata: { reason: model.reason }
+                        });
+                        $.success();
+                    });
+                });
+        }
+    });
 });
