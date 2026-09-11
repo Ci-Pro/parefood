@@ -86,6 +86,11 @@ exports.install = function() {
     ROUTE('POST   /api/v1/orders/{id}/confirm-delivery --> Orders/confirmDelivery', FUNC.auth(['customer']));
 
     // ---------------------------
+    // PAYMENTS
+    // ---------------------------
+    ROUTE('POST   /api/v1/payments/orders/{orderId}/confirm --> Payments/confirm', FUNC.auth(['customer']));
+
+    // ---------------------------
     // DRIVER
     // ---------------------------
     ROUTE('GET    /api/v1/driver/available        --> DriverOrders/available', FUNC.auth(['driver']));

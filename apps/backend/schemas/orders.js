@@ -42,7 +42,16 @@ NEWSCHEMA('Orders', function(schema) {
                                             .sort('created_at', true)
                                             .callback(function(err, history) {
                                                 order.status_history = history || [];
-                                                callback(order);
+
+                                                // Get payment transaction
+                                                DB().find('payment_transactions')
+                                                    .fields('id,method,amount,status,provider,provider_reference,paid_at,created_at')
+                                                    .where('order_id', order.id)
+                                                    .where('is_removed', false)
+                                                    .callback(function(err, payments) {
+                                                        order.payment = (payments && payments.length > 0) ? payments[0] : null;
+                                                        callback(order);
+                                                    });
                                             });
                                     });
                             });
@@ -305,23 +314,70 @@ NEWSCHEMA('Orders', function(schema) {
                                                                 }, function(err) {
                                                                     if (err) return $.invalid(500, 'Failed to create order');
 
-                                                                    FUNC.audit($, {
-                                                                        entity_type: 'orders',
-                                                                        entity_id: orderId,
-                                                                        action: 'create'
-                                                                    });
-
-                                                                    $.callback({
-                                                                        order_id: orderId,
+                                                                    var paymentMethod = order.payment_method;
+                                                                    var paymentOrder = {
+                                                                        id: orderId,
                                                                         order_number: orderNumber,
-                                                                        status: order.status,
-                                                                        grand_total: grandTotal,
-                                                                        subtotal: subtotal,
-                                                                        delivery_fee: deliveryFee,
-                                                                        service_fee: serviceFee,
-                                                                        discount: discount,
-                                                                        tax: tax,
-                                                                        estimated_time_minutes: 30
+                                                                        customer_id: userId,
+                                                                        payment_method: paymentMethod,
+                                                                        grand_total: grandTotal
+                                                                    };
+
+                                                                    var provider = FUNC.payments.activeProvider();
+                                                                    provider.create($, paymentOrder, function(err) {
+                                                                        if (err) return $.invalid(500, 'Failed to create payment');
+
+                                                                        FUNC.audit($, {
+                                                                            entity_type: 'orders',
+                                                                            entity_id: orderId,
+                                                                            action: 'create'
+                                                                        });
+
+                                                                        if (paymentMethod === 'cash') {
+                                                                            // Cash on delivery: payment is confirmed at checkout,
+                                                                            // cash is collected when the order is delivered.
+                                                                            provider.confirm($, paymentOrder, paymentMethod, userId, $.user.role, 'Dibayar tunai saat pengantaran', function(err) {
+                                                                                if (err) return $.invalid(500, 'Failed to confirm payment');
+
+                                                                                FUNC.audit($, {
+                                                                                    entity_type: 'orders',
+                                                                                    entity_id: orderId,
+                                                                                    action: 'payment_cash'
+                                                                                });
+
+                                                                                $.callback({
+                                                                                    order_id: orderId,
+                                                                                    order_number: orderNumber,
+                                                                                    status: 'PAID',
+                                                                                    payment_status: 'PAID',
+                                                                                    payment_method: paymentMethod,
+                                                                                    grand_total: grandTotal,
+                                                                                    subtotal: subtotal,
+                                                                                    delivery_fee: deliveryFee,
+                                                                                    service_fee: serviceFee,
+                                                                                    discount: discount,
+                                                                                    tax: tax,
+                                                                                    estimated_time_minutes: 30
+                                                                                });
+                                                                            });
+                                                                        } else {
+                                                                            // Offline digital method: order waits for the customer
+                                                                            // to confirm payment (Payments/confirm).
+                                                                            $.callback({
+                                                                                order_id: orderId,
+                                                                                order_number: orderNumber,
+                                                                                status: 'PENDING_PAYMENT',
+                                                                                payment_status: 'UNPAID',
+                                                                                payment_method: paymentMethod,
+                                                                                grand_total: grandTotal,
+                                                                                subtotal: subtotal,
+                                                                                delivery_fee: deliveryFee,
+                                                                                service_fee: serviceFee,
+                                                                                discount: discount,
+                                                                                tax: tax,
+                                                                                estimated_time_minutes: 30
+                                                                            });
+                                                                        }
                                                                     });
                                                                 });
                                                             }

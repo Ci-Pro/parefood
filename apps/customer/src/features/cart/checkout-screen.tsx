@@ -36,6 +36,8 @@ interface CheckoutResponse {
   order_id: string;
   order_number: string;
   status: string;
+  payment_status: string;
+  payment_method?: string;
   grand_total: number;
   subtotal: number;
   delivery_fee: number;
@@ -86,7 +88,14 @@ export default function CheckoutScreen() {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['cart'] });
       queryClient.invalidateQueries({ queryKey: ['orders'] });
-      navigation.navigate('OrderDetail', { orderId: result.order_id });
+      if (result.status === 'PAID') {
+        navigation.navigate('OrderDetail', { orderId: result.order_id });
+      } else {
+        navigation.navigate('PayConfirm', {
+          orderId: result.order_id,
+          method: result.payment_method || paymentMethod,
+        });
+      }
     },
     onError: (e) => {
       alert(e instanceof Error ? e.message : 'Checkout gagal');
@@ -141,7 +150,9 @@ export default function CheckoutScreen() {
         <View style={styles.paymentRow}>
           {[
             { key: 'cash', label: '💵 Tunai' },
+            { key: 'bank_transfer', label: '🏦 Transfer' },
             { key: 'qris', label: '📱 QRIS' },
+            { key: 'virtual_account', label: '🔢 VA' },
             { key: 'ewallet', label: '👛 E-Wallet' },
           ].map((m) => (
             <TouchableOpacity
@@ -298,10 +309,12 @@ const styles = StyleSheet.create({
   },
   paymentRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: spacing.sm,
   },
   paymentOption: {
-    flex: 1,
+    flexBasis: '30%',
+    flexGrow: 1,
     padding: spacing.md,
     borderRadius: radius.md,
     borderWidth: 1.5,

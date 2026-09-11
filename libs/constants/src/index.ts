@@ -36,8 +36,7 @@ export const API_ENDPOINTS = {
     status: (id: string) => `/deliveries/${id}/status`,
   },
   payments: {
-    create: '/payments',
-    confirm: (id: string) => `/payments/${id}/confirm`,
+    confirm: (orderId: string) => `/payments/orders/${orderId}/confirm`,
   },
   notifications: {
     mine: '/notifications/mine',

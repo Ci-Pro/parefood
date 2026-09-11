@@ -108,6 +108,7 @@ export function OrderDetailScreen() {
 
   const canCancel = ['PENDING_PAYMENT', 'PAID', 'WAITING_MERCHANT'].includes(order.status);
   const canConfirm = order.status === 'DELIVERED';
+  const needsPayment = order.status === 'PENDING_PAYMENT' && order.payment_method !== 'cash';
 
   const paymentLabel: Record<string, string> = {
     cash: 'Tunai',
@@ -150,6 +151,12 @@ export function OrderDetailScreen() {
           <Text style={styles.sectionLabel}>Pembayaran</Text>
           <Text style={styles.sectionValue}>
             {paymentLabel[order.payment_method || ''] || order.payment_method || '-'}
+          </Text>
+        </View>
+        <View style={styles.sectionRow}>
+          <Text style={styles.sectionLabel}>Status Pembayaran</Text>
+          <Text style={styles.sectionValue}>
+            {order.payment_status === 'PAID' ? 'Lunas ✓' : 'Belum Bayar'}
           </Text>
         </View>
       </Card>
@@ -222,6 +229,22 @@ export function OrderDetailScreen() {
       ) : null}
 
       {/* Actions */}
+      {needsPayment ? (
+        <View style={styles.actionBtn}>
+          <Button
+            label="Konfirmasi Pembayaran"
+            size="lg"
+            fullWidth
+            onPress={() =>
+              navigation.navigate('PayConfirm', {
+                orderId: order.id,
+                method: order.payment_method || 'bank_transfer',
+              })
+            }
+          />
+        </View>
+      ) : null}
+
       {canConfirm ? (
         <View style={styles.actionBtn}>
           <Button

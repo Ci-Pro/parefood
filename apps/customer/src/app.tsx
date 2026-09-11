@@ -22,6 +22,7 @@ import { CartScreen } from './features/cart/cart-screen';
 import CheckoutScreen from './features/cart/checkout-screen';
 import { OrdersScreen } from './features/orders/orders-screen';
 import { OrderDetailScreen } from './features/orders/order-detail-screen';
+import PayConfirmScreen from './features/orders/pay-confirm-screen';
 import { ProfileScreen } from './features/profile/profile-screen';
 
 const Stack = createNativeStackNavigator();
@@ -110,6 +111,7 @@ function RootNavigator() {
           <Stack.Screen name="Cart" component={CartScreen} options={{ title: 'Keranjang' }} />
           <Stack.Screen name="Checkout" component={CheckoutScreen} options={{ title: 'Checkout' }} />
           <Stack.Screen name="OrderDetail" component={OrderDetailScreen} />
+          <Stack.Screen name="PayConfirm" component={PayConfirmScreen} options={{ title: 'Konfirmasi Pembayaran' }} />
         </>
       )}
     </Stack.Navigator>
