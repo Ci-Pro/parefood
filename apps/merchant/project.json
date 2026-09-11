@@ -1,0 +1,33 @@
+{
+  "name": "merchant",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/merchant",
+  "targets": {
+    "start": {
+      "command": "expo start",
+      "options": {
+        "cwd": "apps/merchant"
+      }
+    },
+    "serve": {
+      "command": "expo start",
+      "options": {
+        "cwd": "apps/merchant"
+      }
+    },
+    "typecheck": {
+      "command": "tsc --noEmit -p tsconfig.json",
+      "options": {
+        "cwd": "apps/merchant"
+      }
+    },
+    "lint": {
+      "command": "eslint .",
+      "options": {
+        "cwd": "apps/merchant"
+      }
+    }
+  },
+  "tags": ["mobile", "merchant"]
+}

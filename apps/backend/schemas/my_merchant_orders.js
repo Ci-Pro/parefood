@@ -38,6 +38,51 @@ NEWSCHEMA('MyMerchantOrders', function(schema) {
         }
     });
 
+    // Read single order (with items & addon options)
+    schema.action('read', {
+        name: 'Read my merchant order',
+        params: '*id:UID',
+        action: function($) {
+            var userId = $.user.sub;
+
+            DB().one('merchants')
+                .fields('id')
+                .where('owner_id', userId)
+                .where('is_removed', false)
+                .callback(function(err, merchant) {
+                    if (!merchant) return $.invalid(404, 'Merchant not found');
+
+                    DB().one('orders')
+                        .where('id', $.params.id)
+                        .where('merchant_id', merchant.id)
+                        .where('is_removed', false)
+                        .callback(function(err, order) {
+                            if (!order) return $.invalid(404, 'Order not found');
+
+                            DB().find('order_items')
+                                .where('order_id', order.id)
+                                .callback(function(err, items) {
+                                    order.items = items || [];
+
+                                    var itemIds = order.items.map(function(i) { return i.id; });
+                                    if (itemIds.length === 0) {
+                                        return $.callback({ order: order });
+                                    }
+
+                                    DB().find('order_item_options')
+                                        .where('order_item_id', itemIds)
+                                        .callback(function(err, options) {
+                                            order.items.forEach(function(item) {
+                                                item.options = (options || []).filter(function(o) { return o.order_item_id === item.id; });
+                                            });
+                                            $.callback({ order: order });
+                                        });
+                                });
+                        });
+                });
+        }
+    });
+
     // Accept order
     schema.action('accept', {
         name: 'Accept order',

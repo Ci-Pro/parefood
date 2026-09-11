@@ -46,6 +46,7 @@ exports.install = function() {
     ROUTE('POST   /api/v1/my/merchant/apply       --> MyMerchant/apply', FUNC.auth(['merchant_owner']));
     ROUTE('PUT    /api/v1/my/merchant/hours       --> MyMerchant/updateHours', FUNC.auth(['merchant_owner']));
     ROUTE('GET    /api/v1/my/merchant/orders      --> MyMerchantOrders/list', FUNC.auth(['merchant_owner', 'merchant_staff']));
+    ROUTE('GET    /api/v1/my/merchant/orders/{id} --> MyMerchantOrders/read', FUNC.auth(['merchant_owner', 'merchant_staff']));
     ROUTE('POST   /api/v1/my/merchant/orders/{id}/accept   --> MyMerchantOrders/accept', FUNC.auth(['merchant_owner', 'merchant_staff']));
     ROUTE('POST   /api/v1/my/merchant/orders/{id}/reject   --> MyMerchantOrders/reject', FUNC.auth(['merchant_owner', 'merchant_staff']));
     ROUTE('POST   /api/v1/my/merchant/orders/{id}/preparing --> MyMerchantOrders/preparing', FUNC.auth(['merchant_owner', 'merchant_staff']));
