@@ -64,6 +64,18 @@ export function StatusBadge({ status }: { status: string }) {
     REFUNDED: 'success',
     FAILED: 'danger',
     PREPARING_ORDER: 'warning',
+    OPEN: 'warning',
+    IN_PROGRESS: 'info',
+    REOPENED: 'warning',
+    CLOSED: 'neutral',
+    PENDING: 'warning',
+    APPROVED: 'success',
+    REJECTED: 'danger',
+    ACTIVE: 'success',
+    INACTIVE: 'neutral',
+    ONLINE: 'success',
+    OFFLINE: 'neutral',
+    BUSY: 'warning',
   };
 
   const labels: Record<string, string> = {
@@ -86,6 +98,17 @@ export function StatusBadge({ status }: { status: string }) {
     REFUND_PENDING: 'Refund Diproses',
     REFUNDED: 'Refund',
     FAILED: 'Gagal',
+    OPEN: 'Terbuka',
+    IN_PROGRESS: 'Ditindaklanjuti',
+    REOPENED: 'Dibuka Ulang',
+    CLOSED: 'Ditutup',
+    PENDING: 'Menunggu',
+    APPROVED: 'Disetujui',
+    REJECTED: 'Ditolak',
+    ACTIVE: 'Aktif',
+    INACTIVE: 'Nonaktif',
+    ONLINE: 'Online',
+    OFFLINE: 'Offline',
   };
 
   return <Badge label={labels[status] || status} variant={map[status] || 'neutral'} />;

@@ -10,6 +10,7 @@ const NAV = [
   { href: '/orders', label: '🧾 Pesanan' },
   { href: '/dispatch', label: '🛵 Dispatch' },
   { href: '/validation', label: '✅ Validasi' },
+  { href: '/users', label: '👥 Pengguna' },
   { href: '/support', label: '🎧 Bantuan' },
   { href: '/reports', label: '📊 Laporan' },
 ];

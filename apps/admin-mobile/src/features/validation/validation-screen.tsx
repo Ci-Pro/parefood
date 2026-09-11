@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, LoadingIndicator, ErrorState, Button, EmptyState, StatusBadge } from '@parefood/design-system/react-native';
 import { colors, spacing } from '@parefood/design-system';
@@ -21,7 +21,16 @@ interface PendingDriver {
   status?: string;
 }
 
-type Section = 'merchants' | 'drivers';
+interface AdminUser {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  is_active: boolean;
+  created_at?: string;
+}
+
+type Section = 'merchants' | 'drivers' | 'users';
 
 export default function ValidationScreen() {
   const queryClient = useQueryClient();
@@ -40,6 +49,14 @@ export default function ValidationScreen() {
     queryFn: async () => {
       const api = getApiClient();
       return api.get<{ drivers: PendingDriver[] }>('/admin/drivers/pending');
+    },
+  });
+
+  const users = useQuery<{ users: AdminUser[] }>({
+    queryKey: ['admin-users'],
+    queryFn: async () => {
+      const api = getApiClient();
+      return api.get<{ users: AdminUser[] }>('/admin/users', { size: 50 });
     },
   });
 
@@ -72,6 +89,7 @@ export default function ValidationScreen() {
 
   const pendingMerchants = merchants.data?.merchants || [];
   const pendingDrivers = drivers.data?.drivers || [];
+  const usersList = users.data?.users || [];
 
   const renderMerchants = () =>
     merchants.isLoading ? (
@@ -122,6 +140,30 @@ export default function ValidationScreen() {
       ))
     );
 
+  const renderUsers = () =>
+    users.isLoading ? (
+      <LoadingIndicator label="Memuat pengguna..." />
+    ) : users.isError ? (
+      <ErrorState message="Gagal memuat pengguna" onRetry={() => users.refetch()} />
+    ) : usersList.length === 0 ? (
+      <EmptyState title="Belum ada pengguna" />
+    ) : (
+      usersList.map((u) => (
+        <Card key={u.id} style={styles.card}>
+          <View style={styles.row}>
+            <View style={styles.info}>
+              <Text style={styles.name}>{u.name}</Text>
+              <View style={styles.userMetaRow}>
+                <StatusBadge status={u.is_active ? 'ACTIVE' : 'INACTIVE'} />
+                <Text style={styles.roleChip}>{u.role}</Text>
+              </View>
+              <Text style={styles.dim}>{u.email}</Text>
+            </View>
+          </View>
+        </Card>
+      ))
+    );
+
   return (
     <View style={styles.container}>
       <View style={styles.tabs}>
@@ -141,16 +183,23 @@ export default function ValidationScreen() {
             Kurir ({pendingDrivers.length})
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tab, section === 'users' && styles.tabActive]}
+          onPress={() => setSection('users')}
+        >
+          <Text style={[styles.tabText, section === 'users' && styles.tabTextActive]}>
+            Pengguna ({usersList.length})
+          </Text>
+        </TouchableOpacity>
       </View>
 
-      <FlatList
-        contentContainerStyle={styles.content}
-        data={section === 'merchants' ? pendingMerchants : pendingDrivers}
-        key={section}
-        keyExtractor={(item) => item.id}
-        renderItem={section === 'merchants' ? () => null : () => null}
-        ListHeaderComponent={section === 'merchants' ? renderMerchants() : renderDrivers()}
-      />
+      <ScrollView contentContainerStyle={styles.content}>
+        {section === 'merchants'
+          ? renderMerchants()
+          : section === 'drivers'
+            ? renderDrivers()
+            : renderUsers()}
+      </ScrollView>
     </View>
   );
 }
@@ -199,6 +248,21 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: colors.neutral[900],
+  },
+  userMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    marginTop: 2,
+  },
+  roleChip: {
+    fontSize: 12,
+    color: colors.neutral[600],
+    backgroundColor: colors.neutral[100],
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 2,
+    borderRadius: 8,
+    overflow: 'hidden',
   },
   dim: {
     fontSize: 12,
