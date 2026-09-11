@@ -18,6 +18,10 @@
     "db:migrate": "node supabase/migrations/run.js",
     "db:seed": "node supabase/seed.js"
   },
+  "workspaces": [
+    "apps/*",
+    "libs/*"
+  ],
   "devDependencies": {
     "nx": "^21.0.0",
     "@nx/expo": "^21.0.0",

@@ -1,0 +1,33 @@
+{
+  "name": "customer",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/customer",
+  "targets": {
+    "start": {
+      "command": "expo start",
+      "options": {
+        "cwd": "apps/customer"
+      }
+    },
+    "serve": {
+      "command": "expo start",
+      "options": {
+        "cwd": "apps/customer"
+      }
+    },
+    "typecheck": {
+      "command": "tsc --noEmit -p tsconfig.json",
+      "options": {
+        "cwd": "apps/customer"
+      }
+    },
+    "lint": {
+      "command": "eslint .",
+      "options": {
+        "cwd": "apps/customer"
+      }
+    }
+  },
+  "tags": ["mobile", "customer"]
+}
