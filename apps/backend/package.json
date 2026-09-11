@@ -1,0 +1,21 @@
+{
+  "name": "@parefood/backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PareFood Total.js Backend API Server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "serve": "node index.js",
+    "dev": "node index.js --debug",
+    "build": "echo 'No build step required for Total.js'",
+    "lint": "node --check index.js && node --check definitions/db.js && node --check controllers/api.js"
+  },
+  "dependencies": {
+    "total.js": "^5.0.0",
+    "querybuilderpg": "^1.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.0"
+  }
+}

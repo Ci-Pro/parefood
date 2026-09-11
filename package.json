@@ -1,0 +1,31 @@
+{
+  "name": "parefood",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PareFood — Local Food Delivery Platform for Pare/Kediri Area",
+  "scripts": {
+    "dev:backend": "npx nx serve backend",
+    "dev:customer": "npx nx start customer",
+    "dev:merchant": "npx nx start merchant",
+    "dev:driver": "npx nx start driver",
+    "dev:admin-mobile": "npx nx start admin-mobile",
+    "dev:admin-web": "npx nx dev admin-web",
+    "build:all": "npx nx run-many --target=build --all",
+    "lint:all": "npx nx run-many --target=lint --all",
+    "typecheck:all": "npx nx run-many --target=typecheck --all",
+    "test:all": "npx nx run-many --target=test --all",
+    "graph": "npx nx graph",
+    "db:migrate": "node supabase/migrations/run.js",
+    "db:seed": "node supabase/seed.js"
+  },
+  "devDependencies": {
+    "nx": "^21.0.0",
+    "@nx/expo": "^21.0.0",
+    "@nx/next": "^21.0.0",
+    "prettier": "^3.0.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

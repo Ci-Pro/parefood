@@ -1,0 +1,39 @@
+{
+  "name": "backend",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/backend",
+  "targets": {
+    "serve": {
+      "command": "node index.js",
+      "options": {
+        "cwd": "apps/backend",
+        "env": {
+          "NODE_ENV": "development"
+        }
+      }
+    },
+    "dev": {
+      "command": "node index.js --debug",
+      "options": {
+        "cwd": "apps/backend",
+        "env": {
+          "NODE_ENV": "development"
+        }
+      }
+    },
+    "build": {
+      "command": "echo 'Total.js does not require a build step'",
+      "options": {
+        "cwd": "apps/backend"
+      }
+    },
+    "lint": {
+      "command": "node --check index.js && node --check definitions/db.js && node --check controllers/api.js && node --check schemas/auth.js",
+      "options": {
+        "cwd": "apps/backend"
+      }
+    }
+  },
+  "tags": ["backend", "api"]
+}

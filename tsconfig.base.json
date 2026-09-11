@@ -1,0 +1,39 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "rootDir": ".",
+    "sourceMap": true,
+    "declaration": true,
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "importHelpers": true,
+    "target": "es2021",
+    "module": "esnext",
+    "lib": ["es2021", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@parefood/design-system": ["libs/design-system/src/index.ts"],
+      "@parefood/design-system/*": ["libs/design-system/src/*"],
+      "@parefood/types": ["libs/types/src/index.ts"],
+      "@parefood/types/*": ["libs/types/src/*"],
+      "@parefood/api-client": ["libs/api-client/src/index.ts"],
+      "@parefood/api-client/*": ["libs/api-client/src/*"],
+      "@parefood/auth": ["libs/auth/src/index.ts"],
+      "@parefood/auth/*": ["libs/auth/src/*"],
+      "@parefood/validation": ["libs/validation/src/index.ts"],
+      "@parefood/validation/*": ["libs/validation/src/*"],
+      "@parefood/config": ["libs/config/src/index.ts"],
+      "@parefood/config/*": ["libs/config/src/*"],
+      "@parefood/constants": ["libs/constants/src/index.ts"],
+      "@parefood/constants/*": ["libs/constants/src/*"],
+      "@parefood/utils": ["libs/utils/src/index.ts"],
+      "@parefood/utils/*": ["libs/utils/src/*"],
+      "@parefood/localization": ["libs/localization/src/index.ts"],
+      "@parefood/localization/*": ["libs/localization/src/*"]
+    }
+  },
+  "exclude": ["node_modules", "tmp"]
+}
