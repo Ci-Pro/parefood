@@ -66,7 +66,6 @@ NEWSCHEMA('MyMerchant', function(schema) {
                     };
 
                     DB().insert('merchants', merchant)
-                        .audit($, 'Merchant application submitted: ' + model.name)
                         .callback(function(err) {
                             if (err) return $.invalid(500, 'Failed to submit application');
 

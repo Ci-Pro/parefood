@@ -54,6 +54,24 @@ FUNC.paginate = function(page, size) {
     };
 };
 
+// Run sequential DB operations with a done(err) callback.
+// NOTE: querybuilderpg does not support real transactions, so these
+// operations run one-by-one (stopping early on error) instead of ACID.
+FUNC.sequence = function(fn, cb) {
+    var called = false;
+    var done = function(err) {
+        if (called) return;
+        called = true;
+        if (err) console.log('[DB] sequence failed:', err.message || err);
+        cb(err || null);
+    };
+    try {
+        fn(done);
+    } catch (err) {
+        done(err);
+    }
+};
+
 // Create audit log entry
 FUNC.audit = function($, data) {
     const model = {

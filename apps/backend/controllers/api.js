@@ -79,8 +79,8 @@ exports.install = function() {
     // ORDERS
     // ---------------------------
     ROUTE('POST   /api/v1/orders/checkout         --> Orders/checkout', FUNC.auth(['customer']));
-    ROUTE('GET    /api/v1/orders/{id}             --> Orders/read', FUNC.auth());
     ROUTE('GET    /api/v1/orders/mine             --> Orders/mine', FUNC.auth(['customer']));
+    ROUTE('GET    /api/v1/orders/{id}             --> Orders/read', FUNC.auth());
     ROUTE('POST   /api/v1/orders/{id}/cancel      --> Orders/cancel', FUNC.auth(['customer']));
     ROUTE('POST   /api/v1/orders/{id}/confirm-delivery --> Orders/confirmDelivery', FUNC.auth(['customer']));
 

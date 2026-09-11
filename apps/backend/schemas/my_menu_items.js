@@ -152,9 +152,15 @@ NEWSCHEMA('MyMenuItems', function(schema) {
                         };
 
                         DB().insert('menu_items', item)
-                            .audit($, 'Created menu item: ' + model.name)
                             .callback(function(err) {
                                 if (err) return $.invalid(500, 'Failed to create menu item');
+
+                                FUNC.audit($, {
+                                    entity_type: 'menu_items',
+                                    entity_id: id,
+                                    action: 'create_menu_item',
+                                    metadata: { name: model.name }
+                                });
 
                                 // Create variants
                                 if (model.variants && Array.isArray(model.variants)) {

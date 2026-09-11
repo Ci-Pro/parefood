@@ -244,7 +244,7 @@ NEWSCHEMA('Orders', function(schema) {
                                                                     is_removed: false
                                                                 };
 
-                                                                DB().transaction(function(done) {
+                                                                FUNC.sequence(function(done) {
                                                                     DB().insert('orders', order).callback(function(err) {
                                                                         if (err) return done(err);
 
@@ -470,7 +470,7 @@ NEWSCHEMA('Orders', function(schema) {
                     }
 
                     var now = new Date();
-                    DB().transaction(function(done) {
+                    FUNC.sequence(function(done) {
                         DB().update('orders', {
                             status: 'CANCELLED_BY_CUSTOMER',
                             cancelled_at: now,
@@ -528,7 +528,7 @@ NEWSCHEMA('Orders', function(schema) {
                     }
 
                     var now = new Date();
-                    DB().transaction(function(done) {
+                    FUNC.sequence(function(done) {
                         DB().update('orders', {
                             status: 'COMPLETED',
                             delivered_at: order.status === 'DELIVERED' ? order.delivered_at : now,

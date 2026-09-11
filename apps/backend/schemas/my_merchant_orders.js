@@ -68,7 +68,7 @@ NEWSCHEMA('MyMerchantOrders', function(schema) {
                             }
 
                             var now = new Date();
-                            DB().transaction(function(done) {
+                            FUNC.sequence(function(done) {
                                 DB().update('orders', {
                                     status: 'MERCHANT_ACCEPTED',
                                     accepted_at: now,
@@ -132,7 +132,7 @@ NEWSCHEMA('MyMerchantOrders', function(schema) {
                             }
 
                             var now = new Date();
-                            DB().transaction(function(done) {
+                            FUNC.sequence(function(done) {
                                 DB().update('orders', {
                                     status: 'REJECTED_BY_MERCHANT',
                                     cancelled_at: now,
@@ -197,7 +197,7 @@ NEWSCHEMA('MyMerchantOrders', function(schema) {
                             }
 
                             var now = new Date();
-                            DB().transaction(function(done) {
+                            FUNC.sequence(function(done) {
                                 DB().update('orders', {
                                     status: 'PREPARING',
                                     prepared_at: now,
@@ -254,7 +254,7 @@ NEWSCHEMA('MyMerchantOrders', function(schema) {
                             }
 
                             var now = new Date();
-                            DB().transaction(function(done) {
+                            FUNC.sequence(function(done) {
                                 DB().update('orders', {
                                     status: 'READY_FOR_PICKUP',
                                     ready_at: now,

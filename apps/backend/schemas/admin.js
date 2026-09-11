@@ -73,7 +73,7 @@ NEWSCHEMA('Admin', function(schema) {
                     if (merchant.status !== 'pending') return $.invalid(400, 'Merchant is not pending review');
 
                     var now = new Date();
-                    DB().transaction(function(done) {
+                    FUNC.sequence(function(done) {
                         DB().update('merchants', {
                             status: 'approved',
                             approved_at: now,
@@ -127,7 +127,7 @@ NEWSCHEMA('Admin', function(schema) {
                     if (merchant.status !== 'pending') return $.invalid(400, 'Merchant is not pending review');
 
                     var now = new Date();
-                    DB().transaction(function(done) {
+                    FUNC.sequence(function(done) {
                         DB().update('merchants', {
                             status: 'rejected',
                             updated_at: now

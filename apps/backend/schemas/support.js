@@ -26,7 +26,7 @@ NEWSCHEMA('Support', function(schema) {
                 is_removed: false
             };
 
-            DB().transaction(function(done) {
+            FUNC.sequence(function(done) {
                 DB().insert('support_tickets', ticket).callback(function(err) {
                     if (err) return done(err);
 
@@ -119,7 +119,7 @@ NEWSCHEMA('Support', function(schema) {
                     if (!ticket) return $.invalid(404, 'Ticket not found');
                     if (ticket.status === 'CLOSED') return $.invalid(400, 'Ticket is closed');
 
-                    DB().transaction(function(done) {
+                    FUNC.sequence(function(done) {
                         DB().insert('support_messages', {
                             id: FUNC.generateId(),
                             ticket_id: ticket.id,

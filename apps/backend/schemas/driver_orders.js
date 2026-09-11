@@ -83,7 +83,7 @@ NEWSCHEMA('DriverOrders', function(schema) {
                                         updated_at: now
                                     };
 
-                                    DB().transaction(function(done) {
+                                    FUNC.sequence(function(done) {
                                         DB().insert('deliveries', delivery).callback(function(err) {
                                             if (err) return done(err);
 
@@ -147,7 +147,7 @@ NEWSCHEMA('DriverOrders', function(schema) {
                     }
 
                     var now = new Date();
-                    DB().transaction(function(done) {
+                    FUNC.sequence(function(done) {
                         DB().update('deliveries', {
                             status: 'PICKED_UP',
                             pickup_at: now,
@@ -204,7 +204,7 @@ NEWSCHEMA('DriverOrders', function(schema) {
                     }
 
                     var now = new Date();
-                    DB().transaction(function(done) {
+                    FUNC.sequence(function(done) {
                         DB().update('deliveries', {
                             status: 'DELIVERED',
                             delivered_at: now,

@@ -39,7 +39,6 @@ NEWSCHEMA('Profiles', function(schema) {
             DB().update('profiles', model)
                 .where('id', userId)
                 .where('is_removed', false)
-                .audit($, 'Updated profile: ' + userId)
                 .callback(function(err, response) {
                     if (err) {
                         return $.invalid(500, 'Failed to update profile');

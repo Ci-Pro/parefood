@@ -60,9 +60,14 @@ NEWSCHEMA('MyMenuCategories', function(schema) {
                 };
 
                 DB().insert('menu_categories', category)
-                    .audit($, 'Created menu category: ' + model.name)
                     .callback(function(err) {
                         if (err) return $.invalid(500, 'Failed to create category');
+                        FUNC.audit($, {
+                            entity_type: 'menu_categories',
+                            entity_id: category.id,
+                            action: 'create_menu_category',
+                            metadata: { name: model.name }
+                        });
                         $.callback({ id: category.id, category: category });
                     });
             });

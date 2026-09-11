@@ -47,7 +47,6 @@ NEWSCHEMA('Auth', function(schema) {
                     };
 
                     DB().insert('profiles', profile)
-                        .audit($, 'Registered user: ' + model.email)
                         .callback(function(err, response) {
                             if (err) {
                                 return $.invalid(500, 'Failed to register user');
