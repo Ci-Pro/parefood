@@ -108,6 +108,7 @@ export function OrderDetailScreen() {
 
   const canCancel = ['PENDING_PAYMENT', 'PAID', 'WAITING_MERCHANT'].includes(order.status);
   const canConfirm = order.status === 'DELIVERED';
+  const canReview = order.status === 'COMPLETED';
   const needsPayment = order.status === 'PENDING_PAYMENT' && order.payment_method !== 'cash';
 
   const paymentLabel: Record<string, string> = {
@@ -256,6 +257,22 @@ export function OrderDetailScreen() {
               setConfirming(true);
               confirmDelivery.mutate(undefined, { onSettled: () => setConfirming(false) });
             }}
+          />
+        </View>
+      ) : null}
+
+      {canReview ? (
+        <View style={styles.actionBtn}>
+          <Button
+            label="Beri Ulasan"
+            size="lg"
+            fullWidth
+            variant="secondary"
+            onPress={() =>
+              navigation.navigate('ReviewForm', {
+                orderId: order.id,
+              })
+            }
           />
         </View>
       ) : null}

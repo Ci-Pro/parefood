@@ -116,6 +116,14 @@ exports.install = function() {
     ROUTE('POST   /api/v1/promotions/validate     --> Promotions/validate', FUNC.auth(['customer']));
 
     // ---------------------------
+    // REVIEWS
+    // ---------------------------
+    ROUTE('GET    /api/v1/merchants/{slug}/reviews --> Reviews/list');
+    ROUTE('GET    /api/v1/reviews/mine             --> Reviews/mine', FUNC.auth(['customer']));
+    ROUTE('POST   /api/v1/reviews                  --> Reviews/create', FUNC.auth(['customer']));
+    ROUTE('POST   /api/v1/reviews/{id}/reply       --> Reviews/reply', FUNC.auth(['merchant_owner', 'admin_operations', 'super_admin']));
+
+    // ---------------------------
     // NOTIFICATIONS
     // ---------------------------
     ROUTE('GET    /api/v1/notifications            --> Notifications/list', FUNC.auth());

@@ -18,7 +18,7 @@ import {
   LoadingIndicator,
   ErrorState,
 } from '@parefood/design-system/react-native';
-import { brand, colors, spacing, typography } from '@parefood/design-system';
+import { brand, colors, spacing, radius } from '@parefood/design-system';
 import { API_ENDPOINTS } from '@parefood/constants';
 import { getApiClient } from '@parefood/api-client';
 import type { Merchant, MenuCategory, MenuItem, MenuVariant } from '@parefood/types';
@@ -57,6 +57,64 @@ interface MenuCategoryRow {
 interface MenuResponse {
   categories: MenuCategoryRow[];
   items: MenuItemRow[];
+}
+
+interface ReviewRow {
+  id: string;
+  rating: number;
+  comment?: string | null;
+  admin_reply?: string | null;
+  replied_at?: string | null;
+  customer_name: string;
+  created_at: string;
+}
+
+function ReviewsSection({ slug, rating, ratingCount }: { slug: string; rating: number; ratingCount: number }) {
+  const { data } = useQuery({
+    queryKey: ['reviews', slug],
+    enabled: !!slug,
+    queryFn: async () => {
+      const api = getApiClient();
+      const response = await api.get<{ reviews: ReviewRow[] }>(`/merchants/${slug}/reviews`);
+      return response.reviews;
+    },
+  });
+
+  const reviews = data || [];
+
+  return (
+    <View>
+      <View style={styles.reviewsHeader}>
+        <Text style={styles.reviewsTitle}>Ulasan</Text>
+        <Text style={styles.reviewsRating}>
+          ⭐ {Number(rating || 0).toFixed(1)} · {ratingCount || 0} ulasan
+        </Text>
+      </View>
+
+      {reviews.length === 0 ? (
+        <Text style={styles.noReviews}>Belum ada ulasan</Text>
+      ) : (
+        reviews.map((r) => (
+          <Card key={r.id} style={styles.reviewCard}>
+            <View style={styles.reviewTop}>
+              <Text style={styles.reviewStars}>{'★'.repeat(Math.min(r.rating, 5))}</Text>
+              <Text style={styles.reviewDate}>
+                {new Date(r.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+              </Text>
+            </View>
+            <Text style={styles.reviewName}>{r.customer_name}</Text>
+            {r.comment ? <Text style={styles.reviewComment}>{r.comment}</Text> : null}
+            {r.admin_reply ? (
+              <View style={styles.replyBox}>
+                <Text style={styles.replyLabel}>Balasan merchant</Text>
+                <Text style={styles.replyText}>{r.admin_reply}</Text>
+              </View>
+            ) : null}
+          </Card>
+        ))
+      )}
+    </View>
+  );
 }
 
 export default function MerchantDetailScreen() {
@@ -154,6 +212,15 @@ export default function MerchantDetailScreen() {
                 <Text style={styles.noMenu}>Menu belum tersedia</Text>
               ) : null}
             </View>
+          }
+          ListFooterComponent={
+            merchant.slug ? (
+              <ReviewsSection
+                slug={merchant.slug}
+                rating={Number(merchant.rating || 0)}
+                ratingCount={Number(merchant.rating_count || 0)}
+              />
+            ) : null
           }
           renderSectionHeader={({ section }) => (
             <View style={styles.categoryHeader}>
@@ -313,5 +380,69 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: colors.neutral[500],
     padding: spacing.xl,
+  },
+  reviewsHeader: {
+    paddingHorizontal: spacing.md,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.sm,
+  },
+  reviewsTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: colors.neutral[900],
+  },
+  reviewsRating: {
+    fontSize: 13,
+    color: colors.neutral[500],
+    marginTop: 2,
+  },
+  noReviews: {
+    textAlign: 'center',
+    color: colors.neutral[500],
+    padding: spacing.lg,
+  },
+  reviewCard: {
+    marginHorizontal: spacing.md,
+    marginBottom: spacing.sm,
+  },
+  reviewTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  reviewStars: {
+    fontSize: 14,
+    color: '#F59E0B',
+  },
+  reviewDate: {
+    fontSize: 12,
+    color: colors.neutral[400],
+  },
+  reviewName: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.neutral[900],
+    marginTop: spacing.xs,
+  },
+  reviewComment: {
+    fontSize: 13,
+    color: colors.neutral[700],
+    marginTop: spacing.xs,
+  },
+  replyBox: {
+    marginTop: spacing.sm,
+    padding: spacing.sm,
+    backgroundColor: colors.neutral[100],
+    borderRadius: radius.md,
+  },
+  replyLabel: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: colors.neutral[500],
+  },
+  replyText: {
+    fontSize: 13,
+    color: colors.neutral[800],
+    marginTop: 2,
   },
 });

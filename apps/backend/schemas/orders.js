@@ -182,12 +182,12 @@ NEWSCHEMA('Orders', function(schema) {
 
                                                             if (model.promotion_code) {
                                                                 // Validate promotion
-                                                                DB().find('promotions')
+                                                                DB().one('promotions')
                                                                     .where('code', model.promotion_code.toUpperCase())
                                                                     .where('is_active', true)
-                                                                    .callback(function(err, promos) {
-                                                                        if (promos && promos.length > 0) {
-                                                                            var promo = promos[0];
+                                                                    .where('is_removed', false)
+                                                                    .callback(function(err, promo) {
+                                                                        if (promo) {
                                                                             // Check validity period
                                                                             var now = new Date();
                                                                             var valid = true;
@@ -195,21 +195,44 @@ NEWSCHEMA('Orders', function(schema) {
                                                                             if (promo.valid_until && new Date(promo.valid_until) < now) valid = false;
                                                                             if (promo.min_order > subtotal) valid = false;
 
-                                                                            if (valid) {
-                                                                                if (promo.discount_type === 'fixed') {
-                                                                                    discount = promo.discount_value;
-                                                                                } else if (promo.discount_type === 'percentage') {
-                                                                                    discount = Math.round(subtotal * promo.discount_value / 100);
-                                                                                }
-                                                                                // Apply max discount
-                                                                                if (promo.max_discount && discount > promo.max_discount) {
-                                                                                    discount = promo.max_discount;
-                                                                                }
-                                                                                discount = Math.round(discount * 100) / 100;
-                                                                                promotionId = promo.id;
-                                                                            }
+                                                                            if (!valid) { finalizeCheckout(); return; }
+
+                                                                            // Check usage limits
+                                                                            DB().count('promotion_redemptions')
+                                                                                .where('promotion_id', promo.id)
+                                                                                .callback(function(err, count) {
+                                                                                    if (!err && promo.usage_limit && count >= promo.usage_limit) {
+                                                                                        finalizeCheckout();
+                                                                                        return;
+                                                                                    }
+
+                                                                                    // Check per-customer limit
+                                                                                    DB().count('promotion_redemptions')
+                                                                                        .where('promotion_id', promo.id)
+                                                                                        .where('user_id', userId)
+                                                                                        .callback(function(err2, userCount) {
+                                                                                            if (!err2 && promo.per_customer_limit && userCount >= promo.per_customer_limit) {
+                                                                                                finalizeCheckout();
+                                                                                                return;
+                                                                                            }
+
+                                                                                            if (promo.discount_type === 'fixed') {
+                                                                                                discount = promo.discount_value;
+                                                                                            } else if (promo.discount_type === 'percentage') {
+                                                                                                discount = Math.round(subtotal * promo.discount_value / 100);
+                                                                                            }
+                                                                                            // Apply max discount
+                                                                                            if (promo.max_discount && discount > promo.max_discount) {
+                                                                                                discount = promo.max_discount;
+                                                                                            }
+                                                                                            discount = Math.round(discount * 100) / 100;
+                                                                                            promotionId = promo.id;
+                                                                                            finalizeCheckout();
+                                                                                        });
+                                                                                });
+                                                                        } else {
+                                                                            finalizeCheckout();
                                                                         }
-                                                                        finalizeCheckout();
                                                                     });
                                                             } else {
                                                                 finalizeCheckout();
@@ -300,16 +323,32 @@ NEWSCHEMA('Orders', function(schema) {
                                                                             actor_id: userId,
                                                                             actor_role: 'customer',
                                                                             created_at: now
-                                                                        }).callback(function(err) {
-                                                                            if (err) return done(err);
+}).callback(function(err) {
+                                            if (err) return done(err);
 
-                                                                            ASYNC(itemOps, function() {
-                                                                                // Clear cart
-                                                                                DB().update('cart_items', { is_removed: true, updated_at: now })
-                                                                                    .where('cart_id', cart.id)
-                                                                                    .callback(function() { done(); });
-                                                                            });
-                                                                        });
+                                            // Record promotion redemption
+                                            var recordRedemption = function(cb) {
+                                                if (!promotionId) return cb();
+                                                DB().insert('promotion_redemptions', {
+                                                    id: FUNC.generateId(),
+                                                    promotion_id: promotionId,
+                                                    user_id: userId,
+                                                    order_id: orderId,
+                                                    created_at: now
+                                                }).callback(function(err) { cb(err); });
+                                            };
+
+                                            recordRedemption(function(err) {
+                                                if (err) return done(err);
+
+                                                ASYNC(itemOps, function() {
+                                                    // Clear cart
+                                                    DB().update('cart_items', { is_removed: true, updated_at: now })
+                                                        .where('cart_id', cart.id)
+                                                        .callback(function() { done(); });
+                                                });
+                                            });
+                                        });
                                                                     });
                                                                 }, function(err) {
                                                                     if (err) return $.invalid(500, 'Failed to create order');
