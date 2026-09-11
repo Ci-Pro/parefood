@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
   merchants: {
     list: '/merchants',
     read: (id: string) => `/merchants/${id}`,
+    menuItems: (id: string) => `/merchants/menu-items/${id}`,
     mine: '/merchants/mine',
   },
   menu: {

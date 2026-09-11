@@ -129,7 +129,6 @@ CREATE TABLE IF NOT EXISTS orders (
     CONSTRAINT fk_order_customer FOREIGN KEY (customer_id) REFERENCES profiles (id),
     CONSTRAINT fk_order_merchant FOREIGN KEY (merchant_id) REFERENCES merchants (id),
     CONSTRAINT fk_order_address FOREIGN KEY (address_id) REFERENCES customer_addresses (id),
-    CONSTRAINT fk_order_promotion FOREIGN KEY (promotion_id) REFERENCES promotions (id),
     CONSTRAINT fk_order_cancelled_by FOREIGN KEY (cancelled_by) REFERENCES profiles (id),
     CONSTRAINT chk_order_status CHECK (status IN (
         'PENDING_PAYMENT', 'PAID', 'WAITING_MERCHANT', 'MERCHANT_ACCEPTED',

@@ -35,6 +35,7 @@ exports.install = function() {
     ROUTE('GET    /api/v1/merchants               --> Merchants/list');
     ROUTE('GET    /api/v1/merchants/{slug}        --> Merchants/read');
     ROUTE('GET    /api/v1/merchants/{id}/menu     --> Merchants/menu');
+    ROUTE('GET    /api/v1/merchants/menu-items/{id} --> Merchants/readItem');
     ROUTE('GET    /api/v1/merchant-categories     --> MerchantCategories/list');
 
     // ---------------------------

@@ -102,4 +102,58 @@ NEWSCHEMA('Merchants', function(schema) {
                 });
         }
     });
+
+    // Public: read single menu item with variants & addons
+    schema.action('readItem', {
+        name: 'Read menu item detail',
+        params: '*id:UID',
+        action: function($) {
+            DB().one('menu_items')
+                .where('id', $.params.id)
+                .where('is_removed', false)
+                .callback(function(err, item) {
+                    if (!item) return $.invalid(404, 'Menu item not found');
+
+                    // Get variants
+                    DB().find('menu_variants')
+                        .where('menu_item_id', item.id)
+                        .callback(function(err, variants) {
+                            item.variants = variants || [];
+
+                            // Get addons via mapping
+                            DB().find('menu_item_addons')
+                                .where('menu_item_id', item.id)
+                                .callback(function(err, maps) {
+                                    if (!maps || maps.length === 0) {
+                                        item.addons = [];
+                                        return $.callback({ item: item });
+                                    }
+
+                                    var addonIds = maps.map(function(m) { return m.addon_id; });
+
+                                    DB().find('menu_addons')
+                                        .where('id', addonIds)
+                                        .where('is_active', true)
+                                        .callback(function(err, addons) {
+                                            item.addons = addons || [];
+
+                                            var addonIdList = item.addons.map(function(a) { return a.id; });
+                                            if (addonIdList.length > 0) {
+                                                DB().find('menu_addon_options')
+                                                    .where('addon_id', addonIdList)
+                                                    .callback(function(err, options) {
+                                                        item.addons.forEach(function(addon) {
+                                                            addon.options = (options || []).filter(function(o) { return o.addon_id === addon.id; });
+                                                        });
+                                                        $.callback({ item: item });
+                                                    });
+                                            } else {
+                                                $.callback({ item: item });
+                                            }
+                                        });
+                                });
+                        });
+                });
+        }
+    });
 });

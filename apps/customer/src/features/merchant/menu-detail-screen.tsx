@@ -49,7 +49,7 @@ export default function MenuDetailScreen() {
     queryFn: async () => {
       const api = getApiClient();
       const response = await api.get<{ item: MenuItemDetail }>(
-        `/my/menu/items/${itemId}`
+        `/merchants/menu-items/${itemId}`
       );
       return response.item;
     },
