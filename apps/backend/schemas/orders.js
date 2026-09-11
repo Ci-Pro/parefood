@@ -647,7 +647,12 @@ NEWSCHEMA('Orders', function(schema) {
                         });
                     }, function(err) {
                         if (err) return $.invalid(500, 'Failed to confirm delivery');
-                        $.success();
+
+                        // Record per-order earnings (financial separation)
+                        FUNC.finance.recordOrderEarnings(order.id, function(err) {
+                            if (err) return $.invalid(500, 'Failed to record earnings');
+                            $.success();
+                        });
                     });
                 });
         }

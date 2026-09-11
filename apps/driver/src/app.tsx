@@ -18,6 +18,7 @@ import HomeScreen from './features/home/home-screen';
 import JobsScreen from './features/jobs/jobs-screen';
 import HistoryScreen from './features/history/history-screen';
 import DriverApplyScreen from './features/apply/driver-apply-screen';
+import FinanceScreen from './features/finance/finance-screen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -71,6 +72,15 @@ function MainTabs() {
         options={{
           tabBarIcon: ({ focused }) => (
             <Text style={[styles.tabIcon, focused && { opacity: 1 }]}>🧾</Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Keuangan"
+        component={FinanceScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Text style={[styles.tabIcon, focused && { opacity: 1 }]}>💰</Text>
           ),
         }}
       />

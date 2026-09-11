@@ -109,6 +109,19 @@ exports.install = function() {
     ROUTE('PUT    /api/v1/my/driver               --> MyDriver/update', FUNC.auth(['driver']));
 
     // ---------------------------
+    // FINANCE (Phase 9)
+    // ---------------------------
+    ROUTE('GET    /api/v1/my/merchant/finance       --> MerchantFinance/overview', FUNC.auth(['merchant_owner']));
+    ROUTE('GET    /api/v1/my/merchant/settlements   --> MerchantFinance/settlements', FUNC.auth(['merchant_owner']));
+    ROUTE('GET    /api/v1/my/driver/finance         --> DriverFinance/overview', FUNC.auth(['driver']));
+    ROUTE('GET    /api/v1/my/driver/settlements     --> DriverFinance/settlements', FUNC.auth(['driver']));
+    ROUTE('GET    /api/v1/admin/finance             --> AdminFinance/overview', FUNC.auth(['admin_operations', 'super_admin']));
+    ROUTE('GET    /api/v1/admin/settlements         --> AdminFinance/settlements', FUNC.auth(['admin_operations', 'super_admin']));
+    ROUTE('POST   /api/v1/admin/settlements         --> AdminFinance/createSettlement', FUNC.auth(['admin_operations', 'super_admin']));
+    ROUTE('POST   /api/v1/admin/settlements/{id}/approve --> AdminFinance/approveSettlement', FUNC.auth(['admin_operations', 'super_admin']));
+    ROUTE('POST   /api/v1/admin/settlements/{id}/settle  --> AdminFinance/settleSettlement', FUNC.auth(['admin_operations', 'super_admin']));
+
+    // ---------------------------
     // PROMOTIONS (public)
     // ---------------------------
     ROUTE('GET    /api/v1/promotions              --> Promotions/list');

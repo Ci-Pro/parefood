@@ -22,6 +22,7 @@ import { CategoryFormScreen } from './features/menu/category-form-screen';
 import { ItemFormScreen } from './features/menu/item-form-screen';
 import StoreScreen from './features/store/store-screen';
 import StoreApplyScreen from './features/store/store-apply-screen';
+import FinanceScreen from './features/finance/finance-screen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -84,6 +85,15 @@ function MainTabs() {
         options={{
           tabBarIcon: ({ focused }) => (
             <Text style={[styles.tabIcon, focused && { opacity: 1 }]}>⚙️</Text>
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="Keuangan"
+        component={FinanceScreen}
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <Text style={[styles.tabIcon, focused && { opacity: 1 }]}>💰</Text>
           ),
         }}
       />
